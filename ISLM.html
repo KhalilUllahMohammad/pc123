@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IS-LM Model Simulator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            max-width: 1000px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            color: #1a1a1a;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            align-items: start;
+        }
+
+        @media (max-width: 1100px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .chart-container {
+            display: flex;
+            justify-content: center;
+        }
+
+        svg {
+            width: 100%;
+            height: auto;
+            max-width: 500px;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .policy-section {
+            border-left: 4px solid #e0e0e0;
+            padding-left: 15px;
+        }
+
+        .policy-section h3 {
+            font-size: 13px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .policy-section.fiscal {
+            border-left-color: #d32f2f;
+        }
+
+        .policy-section.monetary {
+            border-left-color: #1976d2;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .label-with-value {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .value-display {
+            color: #1976d2;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 5px;
+            border-radius: 3px;
+            background: linear-gradient(to right, #e0e0e0 0%, #1976d2 100%);
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #1976d2;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(25, 118, 210, 0.3);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #1976d2;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 6px rgba(25, 118, 210, 0.3);
+        }
+
+        .range-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #999;
+            margin-top: 3px;
+        }
+
+        .equilibrium-box {
+            background: #f5f5f5;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        .equilibrium-box h3 {
+            font-size: 12px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .equilibrium-values {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .eq-value {
+            text-align: center;
+        }
+
+        .eq-value p {
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .eq-value .number {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1976d2;
+        }
+
+        .info-box {
+            background: #f3e5f5;
+            border: 1px solid #ce93d8;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 12px;
+            line-height: 1.5;
+            color: #4a148c;
+            margin-top: 15px;
+        }
+
+        .info-box strong {
+            color: #4a148c;
+        }
+
+        .instructions {
+            background: #f9f9f9;
+            border-left: 4px solid #1976d2;
+            padding: 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            line-height: 1.5;
+            color: #333;
+            margin-top: 15px;
+        }
+
+        .instructions h3 {
+            font-size: 12px;
+            margin-bottom: 6px;
+            color: #1a1a1a;
+            font-weight: 700;
+        }
+
+        .instructions ul {
+            margin-left: 20px;
+        }
+
+        .instructions li {
+            margin-bottom: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>IS-LM Model Simulator</h1>
+        <p class="subtitle">Explore how fiscal and monetary policy shift the IS and LM curves</p>
+        
+        <div class="content">
+            <div class="chart-container">
+                <svg viewBox="0 0 500 450" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Chart area -->
+                    <rect x="60" y="20" width="410" height="360" fill="#fafafa" stroke="#e0e0e0" stroke-width="1" rx="4"/>
+                    
+                    <!-- Gridlines -->
+                    <line x1="60" y1="200" x2="470" y2="200" stroke="#e0e0e0" stroke-width="0.5" stroke-dasharray="4,4" opacity="0.3"/>
+                    <line x1="60" y1="110" x2="470" y2="110" stroke="#e0e0e0" stroke-width="0.5" stroke-dasharray="4,4" opacity="0.3"/>
+                    <line x1="60" y1="290" x2="470" y2="290" stroke="#e0e0e0" stroke-width="0.5" stroke-dasharray="4,4" opacity="0.3"/>
+                    
+                    <line x1="150" y1="20" x2="150" y2="380" stroke="#e0e0e0" stroke-width="0.5" stroke-dasharray="4,4" opacity="0.3"/>
+                    <line x1="265" y1="20" x2="265" y2="380" stroke="#e0e0e0" stroke-width="0.5" stroke-dasharray="4,4" opacity="0.3"/>
+                    <line x1="380" y1="20" x2="380" y2="380" stroke="#e0e0e0" stroke-width="0.5" stroke-dasharray="4,4" opacity="0.3"/>
+                    
+                    <!-- IS Curve (red/downward sloping) -->
+                    <path id="isCurve" d="M 80 80 L 420 340" fill="none" stroke="#d32f2f" stroke-width="3.5" stroke-linecap="round"/>
+                    <text id="isLabel" x="330" y="310" font-size="14" font-weight="700" fill="#d32f2f" opacity="0.9">IS</text>
+                    
+                    <!-- LM Curve (blue/upward sloping) -->
+                    <path id="lmCurve" d="M 80 340 L 420 80" fill="none" stroke="#1976d2" stroke-width="3.5" stroke-linecap="round"/>
+                    <text id="lmLabel" x="380" y="110" font-size="14" font-weight="700" fill="#1976d2" opacity="0.9">LM</text>
+                    
+
+                    
+                    <!-- Axes -->
+                    <line x1="60" y1="380" x2="470" y2="380" stroke="#333" stroke-width="2"/>
+                    <line x1="60" y1="20" x2="60" y2="380" stroke="#333" stroke-width="2"/>
+                    
+                    <!-- X-axis labels (Output) -->
+                    <text x="70" y="405" font-size="11" fill="#666">Low</text>
+                    <text x="445" y="405" font-size="11" fill="#666">High</text>
+                    <text x="265" y="430" font-size="12" font-weight="500" fill="#333" text-anchor="middle">Output (Y)</text>
+                    
+                    <!-- Y-axis labels (Interest Rate) -->
+                    <text x="45" y="388" font-size="11" fill="#666" text-anchor="end">Low</text>
+                    <text x="45" y="28" font-size="11" fill="#666" text-anchor="end">High</text>
+                    <text x="25" y="200" font-size="12" font-weight="500" fill="#333" text-anchor="middle" transform="rotate(-90, 25, 200)">Interest rate (r)</text>
+                    
+                    <!-- Legend -->
+                    <g transform="translate(65, 5)">
+                        <line x1="0" y1="0" x2="15" y2="0" stroke="#d32f2f" stroke-width="2.5"/>
+                        <text x="22" y="4" font-size="11" fill="#333" font-weight="500">IS</text>
+                        
+                        <line x1="60" y1="0" x2="75" y2="0" stroke="#1976d2" stroke-width="2.5"/>
+                        <text x="82" y="4" font-size="11" fill="#333" font-weight="500">LM</text>
+                        
+                        <circle cx="120" cy="0" r="3" fill="#4caf50"/>
+                        <text x="130" y="4" font-size="11" fill="#333" font-weight="500">Equilibrium</text>
+                    </g>
+                </svg>
+            </div>
+
+            <div class="controls">
+                <!-- Fiscal Policy Section -->
+                <div class="policy-section fiscal">
+                    <h3>Fiscal Policy</h3>
+                    
+                    <div class="control-group">
+                        <div class="label-with-value">
+                            <label>Government spending (G)</label>
+                            <span class="value-display" id="gValue">100</span>
+                        </div>
+                        <input type="range" id="gSlider" min="50" max="150" value="100" step="5"/>
+                        <div class="range-labels">
+                            <span>Contractionary</span>
+                            <span>Expansionary</span>
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <div class="label-with-value">
+                            <label>Taxes (T)</label>
+                            <span class="value-display" id="tValue">50</span>
+                        </div>
+                        <input type="range" id="tSlider" min="30" max="70" value="50" step="5"/>
+                        <div class="range-labels">
+                            <span>Low taxes</span>
+                            <span>High taxes</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Monetary Policy Section -->
+                <div class="policy-section monetary">
+                    <h3>Monetary Policy</h3>
+                    
+                    <div class="control-group">
+                        <div class="label-with-value">
+                            <label>Money supply (M)</label>
+                            <span class="value-display" id="mValue">100</span>
+                        </div>
+                        <input type="range" id="mSlider" min="50" max="150" value="100" step="5"/>
+                        <div class="range-labels">
+                            <span>Tight</span>
+                            <span>Loose</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Equilibrium Display -->
+                <div class="equilibrium-box">
+                    <h3>Equilibrium</h3>
+                    <div class="equilibrium-values">
+                        <div class="eq-value">
+                            <p>Output (GDP)</p>
+                            <div class="number" id="eqY">400</div>
+                        </div>
+                        <div class="eq-value">
+                            <p>Interest Rate (r)</p>
+                            <div class="number" id="eqR">11%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Info Box -->
+                <div class="info-box">
+                    <strong>How it works:</strong> The IS curve (red, demand) slopes downward. The LM curve (blue, supply) slopes upward. Fiscal policy shifts IS; monetary policy shifts LM. Watch the equilibrium point move as you adjust policies.
+                </div>
+
+                <!-- Instructions -->
+                <div class="instructions">
+                    <h3>Try these scenarios:</h3>
+                    <ul>
+                        <li><strong>Expansionary fiscal:</strong> Increase G or decrease T → IS shifts right</li>
+                        <li><strong>Expansionary monetary:</strong> Increase M → LM shifts right</li>
+                        <li><strong>Stagflation:</strong> Decrease M while increasing G</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const gSlider = document.getElementById('gSlider');
+        const tSlider = document.getElementById('tSlider');
+        const mSlider = document.getElementById('mSlider');
+        
+        const gValue = document.getElementById('gValue');
+        const tValue = document.getElementById('tValue');
+        const mValue = document.getElementById('mValue');
+        
+        const isCurve = document.getElementById('isCurve');
+        const lmCurve = document.getElementById('lmCurve');
+        const isLabel = document.getElementById('isLabel');
+        const lmLabel = document.getElementById('lmLabel');
+        const eqY = document.getElementById('eqY');
+        const eqR = document.getElementById('eqR');
+
+        function updateModel() {
+            const G = parseFloat(gSlider.value);
+            const T = parseFloat(tSlider.value);
+            const M = parseFloat(mSlider.value);
+            
+            gValue.textContent = G;
+            tValue.textContent = T;
+            mValue.textContent = M;
+            
+            // Baseline values
+            const G0 = 100;
+            const T0 = 50;
+            const M0 = 100;
+            
+            // Calculate shifts in pixels
+            // Fiscal policy affects IS: increase in (G-T) shifts IS right
+            const netFiscal = (G - G0) - (T - T0);
+            const isShift = netFiscal * 2; // 2 pixels per unit
+            
+            // Monetary policy affects LM: increase in M shifts LM right
+            const mDelta = M - M0;
+            const lmShift = mDelta * 2; // 2 pixels per unit
+            
+            // IS curve: starts at (80, 80) to (420, 340)
+            // Shift horizontally to the right
+            const isX1 = 80 + isShift;
+            const isX2 = 420 + isShift;
+            isCurve.setAttribute('d', `M ${isX1} 80 L ${isX2} 340`);
+            
+            // Move IS label
+            const isLabelX = 330 + isShift;
+            isLabel.setAttribute('x', isLabelX);
+            
+            // LM curve: starts at (80, 340) to (420, 80)
+            // Shift horizontally to the right
+            const lmX1 = 80 + lmShift;
+            const lmX2 = 420 + lmShift;
+            lmCurve.setAttribute('d', `M ${lmX1} 340 L ${lmX2} 80`);
+            
+            // Move LM label
+            const lmLabelX = 380 + lmShift;
+            lmLabel.setAttribute('x', lmLabelX);
+            
+            // Calculate equilibrium using proper IS-LM equations
+            // IS: r = (15 + 0.05*netFiscal) - 0.01*Y
+            // LM: r = (7 + 0.05*mDelta) + 0.01*Y
+            
+            const isIntercept = 15 + 0.05 * netFiscal;
+            const lmIntercept = 7 + 0.05 * mDelta;
+            
+            // Equilibrium: isIntercept - 0.01*Y = lmIntercept + 0.01*Y
+            // isIntercept - lmIntercept = 0.02*Y
+            // Y = (isIntercept - lmIntercept) / 0.02
+            
+            let Y_eq = (isIntercept - lmIntercept) / 0.02;
+            let r_eq = lmIntercept + 0.01 * Y_eq;
+            
+            // Ensure GDP doesn't go below 0
+            const Y_final = Math.max(0, Y_eq);
+            
+            // If Y was constrained, recalculate r from LM curve
+            let r_final;
+            if (Y_eq < 0) {
+                r_final = lmIntercept + 0.01 * 0;
+            } else {
+                r_final = r_eq;
+            }
+            
+            // Ensure interest rate doesn't go negative
+            r_final = Math.max(0, r_final);
+            
+            // Update equilibrium display values in the control panel
+            eqY.textContent = Y_final.toFixed(0);
+            eqR.textContent = r_final.toFixed(1) + '%';
+        }
+
+        gSlider.addEventListener('input', updateModel);
+        tSlider.addEventListener('input', updateModel);
+        mSlider.addEventListener('input', updateModel);
+
+        updateModel();
+    </script>
+</body>
+</html>
